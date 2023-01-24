@@ -47,6 +47,7 @@ export default function App() {
         <title>Team 8</title>
       </Helmet>
       <AppWrapper>
+        {/* TODO: Make an actual toggle button */}
         <NavButton onClick={toggleNav}>O</NavButton>
         <BodyWrapper>
           <Nav visible={navVisible}>

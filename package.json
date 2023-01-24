@@ -15,7 +15,7 @@
     "url": "git+https://github.com/FFGFlash/Team-8.git"
   },
   "keywords": [],
-  "author": "FFGFlash",
+  "author": "Team-8",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/FFGFlash/Team-8/issues"
@@ -204,6 +204,9 @@
             "css"
           ]
         }
+      ],
+      "react/no-unescaped-entities": [
+        "off"
       ]
     }
   },

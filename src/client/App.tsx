@@ -1,5 +1,7 @@
 import { Helmet } from 'react-helmet'
 import LazyOutlet from './components/LazyOutlet'
+import { useEffect, createContext } from 'react'
+import useStorage from './hooks/useStorage'
 
 import Icon16x16 from 'client/assets/image/favicon-16x16.png'
 import Icon32x32 from 'client/assets/image/favicon-32x32.png'
@@ -9,6 +11,16 @@ import Icon192x192 from 'client/assets/image/192x192.png'
 import Icon512x512 from 'client/assets/image/512x512.png'
 
 export default function App() {
+  const [darkMode, setDarkMode] = useStorage('darkMode', false)
+
+  useEffect(() => {
+    const classList = document.documentElement.classList
+    classList[darkMode ? 'add' : 'remove']('dark')
+    setTimeout(() => classList.remove('preload'), 500)
+  }, [darkMode])
+
+  const toggleDarkMode = () => setDarkMode(curr => !curr)
+
   return (
     <>
       <Helmet>
@@ -26,7 +38,11 @@ export default function App() {
         <link rel='icon' sizes='512x512' href={Icon512x512} />
         <title>Team 8</title>
       </Helmet>
-      <LazyOutlet />
+      <ThemeContext.Provider value={toggleDarkMode}>
+        <LazyOutlet />
+      </ThemeContext.Provider>
     </>
   )
 }
+
+export const ThemeContext = createContext<() => void>(() => undefined)

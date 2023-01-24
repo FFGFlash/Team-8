@@ -4,6 +4,7 @@ import App from './App'
 import Error from './pages/Error'
 
 const Home = lazy(() => import('./pages/Home'))
+const Coffee = lazy(() => import('./pages/Coffee'))
 
 const routes: RouteObject[] = [
   {
@@ -14,6 +15,10 @@ const routes: RouteObject[] = [
       {
         index: true,
         element: <Home />
+      },
+      {
+        path: '/coffee',
+        element: <Coffee />
       }
     ]
   }

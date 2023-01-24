@@ -1,4 +1,9 @@
+import { useContext } from 'react'
+import { ThemeContext } from '../App'
+
 export default function Home() {
+  const toggleTheme = useContext(ThemeContext)
+
   return (
     <>
       <h1>Header 1</h1>
@@ -8,6 +13,7 @@ export default function Home() {
       <h5>Header 5</h5>
       <h6>Header 6</h6>
       <p>Paragraph</p>
+      <button onClick={toggleTheme}>ToggleTheme</button>
     </>
   )
 }

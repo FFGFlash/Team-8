@@ -1,5 +1,6 @@
 import e from 'express'
 import { join } from 'path'
+import errorHandler, { StatusError } from './middleware/errorHandler'
 import api from './routes/api'
 
 const { NODE_ENV = 'production' } = process.env
@@ -24,6 +25,10 @@ app.use('*', (req, res, next) =>
 
 app.use('/rest', api)
 
-app.use(e.static(join(__dirname, 'public')))
+app.use(e.static(join(__dirname, 'public')), () => {
+  throw new StatusError('File not found', 404)
+})
+
+app.use(errorHandler)
 
 export default app

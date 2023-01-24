@@ -8,6 +8,10 @@
     font-size: 10px !important;
   }
 
+  html.preload * {
+    @apply !transition-none;
+  }
+
   body {
     @apply bg-neutral-100;
     @apply text-neutral-900;

@@ -81,13 +81,33 @@ const config = {
     },
     extend: {
       animation: {
-        loading: 'spin 2s linear infinite, dash 1.5s ease-in-out infinite'
+        'loading': 'spin 2s linear infinite, dash 1.5s ease-in-out infinite',
+        'slide-in':
+          'slide-in 0.2s ease-in-out forwards, fade-in 0.15s ease-in-out forwards',
+        'slide-out':
+          'slide-out 0.2s ease-in-out forwards, fade-out 0.15s ease-in-out forwards'
       },
       keyframes: {
-        dash: {
+        'dash': {
           '0%': { 'stroke-dasharray': '1, 150', 'stroke-dashoffset': '0' },
           '50%': { 'stroke-dasharray': '90, 150', 'stroke-dashoffset': '-35' },
           '100%': { 'stroke-dasharray': '90, 150', 'stroke-dashoffset': '-124' }
+        },
+        'fade-in': {
+          from: { opacity: '0' },
+          to: { opacity: '1' }
+        },
+        'fade-out': {
+          from: { opacity: '1' },
+          to: { opacity: '0' }
+        },
+        'slide-in': {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(0)' }
+        },
+        'slide-out': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-100%)' }
         }
       },
       maxWidth: {

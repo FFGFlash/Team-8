@@ -1,7 +1,6 @@
 import { Helmet } from 'react-helmet'
 import LazyOutlet from './components/LazyOutlet'
-import { useEffect, createContext } from 'react'
-import useStorage from './hooks/useStorage'
+import tw, { css, styled } from 'twin.macro'
 
 import Icon16x16 from 'client/assets/image/favicon-16x16.png'
 import Icon32x32 from 'client/assets/image/favicon-32x32.png'
@@ -9,17 +8,26 @@ import Icon48x48 from 'client/assets/image/favicon.png'
 import Icon180x180 from 'client/assets/image/apple-touch-icon.png'
 import Icon192x192 from 'client/assets/image/192x192.png'
 import Icon512x512 from 'client/assets/image/512x512.png'
+import { useContext, useEffect, useState } from 'react'
+import { ThemeContext } from '.'
+import { Link, useLocation } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 export default function App() {
-  const [darkMode, setDarkMode] = useStorage('darkMode', false)
+  const { toggleDarkMode, logo } = useContext(ThemeContext)
+  const location = useLocation()
+
+  const [navVisible, setNavVisible] = useState(false)
+
+  const toggleNav = () => setNavVisible(curr => !curr)
+
+  // TODO: Add a button to toggle the nav for mobile devices
+  const w = window as never as { toggleNav: typeof toggleNav }
+  w.toggleNav = toggleNav
 
   useEffect(() => {
-    const classList = document.documentElement.classList
-    classList[darkMode ? 'add' : 'remove']('dark')
-    setTimeout(() => classList.remove('preload'), 500)
-  }, [darkMode])
-
-  const toggleDarkMode = () => setDarkMode(curr => !curr)
+    setNavVisible(false)
+  }, [location])
 
   return (
     <>
@@ -38,11 +46,78 @@ export default function App() {
         <link rel='icon' sizes='512x512' href={Icon512x512} />
         <title>Team 8</title>
       </Helmet>
-      <ThemeContext.Provider value={toggleDarkMode}>
-        <LazyOutlet />
-      </ThemeContext.Provider>
+      <AppWrapper>
+        <NavButton onClick={toggleNav}>O</NavButton>
+        <BodyWrapper>
+          <Nav visible={navVisible}>
+            <NavList>
+              {/* TODO: Get a close svg */}
+              <NavButton onClick={toggleNav}>X</NavButton>
+              <LogoItem>
+                <img src={logo} />
+              </LogoItem>
+              <li>
+                <NavLink to='/'>Home</NavLink>
+              </li>
+              <li>
+                <NavLink to='/coffee'>Coffee</NavLink>
+              </li>
+            </NavList>
+            <NavList>
+              <li>Second List</li>
+            </NavList>
+            <NavList>
+              <li>Third List</li>
+            </NavList>
+          </Nav>
+          <PageWrapper>
+            <LazyOutlet />
+          </PageWrapper>
+        </BodyWrapper>
+        <Footer>
+          <div>
+            <button onClick={toggleDarkMode} tw='block'>
+              <StyledFooterLogo src={logo} />
+            </button>
+          </div>
+          <FooterNav>
+            <FooterNavItem>
+              <Link to='/'>Home</Link>
+            </FooterNavItem>
+            <FooterNavItem>
+              <Link to='/coffee'>Coffee</Link>
+            </FooterNavItem>
+          </FooterNav>
+          <div>
+            <p>
+              <CopyrightText>Copyright</CopyrightText> &#169; 2023 Team-8
+            </p>
+          </div>
+        </Footer>
+      </AppWrapper>
     </>
   )
 }
 
-export const ThemeContext = createContext<() => void>(() => undefined)
+const AppWrapper = tw.div`flex flex-col min-h-full`
+const BodyWrapper = tw.div`flex flex-1`
+const PageWrapper = tw.div`flex flex-1`
+
+const Nav = styled.nav(({ visible }: { visible?: boolean }) => [
+  tw`flex text-center fixed inset-0 w-full flex-col divide-y divide-neutral-400 dark:divide-neutral-500 bg-neutral-200 dark:bg-neutral-900 px-8 py-4 lg:opacity-100 lg:w-60 lg:text-left lg:relative lg:visible! lg:animate-none`,
+  visible ? tw`animate-slide-in` : tw`animate-slide-out`,
+  css`
+    html.preload & {
+      visibility: hidden;
+    }
+  `
+])
+const NavButton = tw.button`lg:hidden absolute top-2 right-4`
+const NavList = tw.ul`py-5 first:pt-0 first:border-none last:pb-0`
+const LogoItem = tw.li`flex justify-center`
+
+const Footer = tw.div`flex justify-between items-center px-8 py-4 bg-neutral-200 dark:bg-neutral-900`
+const StyledFooterLogo = tw.img`h-9`
+const CopyrightText = tw.span`hidden sm:inline`
+const FooterNav = tw.ul`hidden flex-row gap-5 items-center justify-center md:flex`
+const FooterNavItem = tw.li`text-sm`

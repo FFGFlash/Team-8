@@ -18,7 +18,8 @@ const routes: RouteObject[] = [
       },
       {
         path: '/coffee',
-        element: <Coffee />
+        element: <Coffee />,
+        errorElement: <Error />
       }
     ]
   }

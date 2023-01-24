@@ -1,5 +1,6 @@
 import e from 'express'
 import { join } from 'path'
+import api from './routes/api'
 
 const { NODE_ENV = 'production' } = process.env
 
@@ -20,6 +21,8 @@ app.use('*', (req, res, next) =>
     ? next()
     : res.sendFile(join(__dirname, 'public/index.html'))
 )
+
+app.use('/rest', api)
 
 app.use(e.static(join(__dirname, 'public')))
 

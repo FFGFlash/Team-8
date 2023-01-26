@@ -13,12 +13,14 @@ import Icon192x192 from 'client/assets/image/192x192.png'
 import Icon512x512 from 'client/assets/image/512x512.png'
 import { useContext, useEffect, useState } from 'react'
 import { ThemeContext } from '.'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLoaderData, useLocation } from 'react-router-dom'
 import { NavLink } from 'react-router-dom'
 import isMobileDevice from './utils/isMobileDevice'
+import { LoaderData } from './utils/authLoader'
 // import addEventListener from './utils/addEventListener'
 
 export default function App() {
+  const { authenticated } = useLoaderData() as LoaderData
   const location = useLocation()
 
   const [navVisible, setNavVisible] = useState(false)
@@ -38,11 +40,15 @@ export default function App() {
       <Head />
       <AppWrapper>
         {/* //TODO: Make an actual toggle button */}
-        <NavButton onClick={toggleNav}>
-          <HamburgerToggle />
-        </NavButton>
+        {authenticated && (
+          <NavButton onClick={toggleNav}>
+            <HamburgerToggle />
+          </NavButton>
+        )}
         <BodyWrapper>
-          <SideNav toggleNav={toggleNav} navVisible={navVisible} />
+          {authenticated && (
+            <SideNav toggleNav={toggleNav} navVisible={navVisible} />
+          )}
           <PageWrapper>
             <LazyOutlet />
           </PageWrapper>

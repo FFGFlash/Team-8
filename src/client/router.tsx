@@ -1,6 +1,7 @@
 import { lazy } from 'react'
 import { RouteObject, createBrowserRouter } from 'react-router-dom'
 import App from './App'
+import authLoader from './utils/authLoader'
 import Error from './pages/Error'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -13,6 +14,7 @@ const routes: RouteObject[] = [
   {
     path: '/',
     element: <App />,
+    loader: authLoader,
     errorElement: <Error />,
     children: [
       {

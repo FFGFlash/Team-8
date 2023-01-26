@@ -13,16 +13,12 @@ import Icon192x192 from 'client/assets/image/192x192.png'
 import Icon512x512 from 'client/assets/image/512x512.png'
 import { useContext, useEffect, useState } from 'react'
 import { ThemeContext } from '.'
-import { Link, useLoaderData, useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { NavLink } from 'react-router-dom'
 import isMobileDevice from './utils/isMobileDevice'
-import { LoaderData } from './utils/authLoader'
 // import addEventListener from './utils/addEventListener'
 
 export default function App() {
-  const { authenticated } = useLoaderData() as LoaderData
-  const location = useLocation()
-
   const [navVisible, setNavVisible] = useState(false)
 
   const toggleNav = () => setNavVisible(curr => !curr)
@@ -31,6 +27,8 @@ export default function App() {
   const w = window as never as { toggleNav: typeof toggleNav }
   w.toggleNav = toggleNav
 
+  //* Close Side Nav on Location Change
+  const location = useLocation()
   useEffect(() => {
     setNavVisible(false)
   }, [location])
@@ -40,15 +38,11 @@ export default function App() {
       <Head />
       <AppWrapper>
         {/* //TODO: Make an actual toggle button */}
-        {authenticated && (
-          <NavButton onClick={toggleNav}>
-            <HamburgerToggle />
-          </NavButton>
-        )}
+        <NavButton onClick={toggleNav}>
+          <HamburgerToggle />
+        </NavButton>
         <BodyWrapper>
-          {authenticated && (
-            <SideNav toggleNav={toggleNav} navVisible={navVisible} />
-          )}
+          <SideNav toggleNav={toggleNav} navVisible={navVisible} />
           <PageWrapper>
             <LazyOutlet />
           </PageWrapper>
@@ -110,6 +104,9 @@ interface SideNavProps {
 }
 
 function SideNav({ navVisible, toggleNav }: SideNavProps) {
+  //TODO: Use Loader Data for This
+  const [authenticated, setAuthenticated] = useState(false)
+
   const { logo } = useContext(ThemeContext)
 
   return (
@@ -125,27 +122,42 @@ function SideNav({ navVisible, toggleNav }: SideNavProps) {
         <ListItem>
           <NavLink to='/'>Home</NavLink>
         </ListItem>
-        <ListItem>
-          {/* REACT-THREE-FIBER WORLD */}
-          <NavLink to='/team-8-land'>Metaverse</NavLink>
+        {authenticated ? (
+          <>
+            <ListItem>
+              <NavLink to='/team-8-land'>Metaverse</NavLink>
+            </ListItem>
+            <ListItem>
+              <NavLink to='/nft'>NFT</NavLink>
+            </ListItem>
+          </>
+        ) : (
+          <ListItem>
+            <NavLink to='/sign-in'>Sign In</NavLink>
+          </ListItem>
+        )}
+      </NavList>
+      {authenticated && (
+        <>
+          <NavList>
+            <ListItem>{'{GROUPS}'}</ListItem>
+            <ListItem>{'Recent Group'}</ListItem>
+            <ListItem>{'Recent Group'}</ListItem>
+            <ListItem>{'Recent Group'}</ListItem>
+          </NavList>
+          <NavList>
+            <ListItem>{'{NETWORK}'}</ListItem>
+            <ListItem>{'{PROFILE}'}</ListItem>
+          </NavList>
+        </>
+      )}
+      <NavList>
+        <ListItem
+          className='cursor-pointer'
+          onClick={() => setAuthenticated(curr => !curr)}
+        >
+          {authenticated ? '{TEMP SIGN OUT}' : '{TEMP SIGN IN}'}
         </ListItem>
-        <ListItem>
-          {/* Mint our Team 8 NFT (will need to make a solidity smart contract) and WEB3 package to link metamask auth and minting */}
-          <NavLink to='/nft'>NFT</NavLink>
-        </ListItem>
-      </NavList>
-      <NavList>
-        <ListItem>{'{GROUPS}'}</ListItem>
-        <ListItem>{'Recent Group'}</ListItem>
-        <ListItem>{'Recent Group'}</ListItem>
-        <ListItem>{'Recent Group'}</ListItem>
-      </NavList>
-      <NavList>
-        <ListItem>{'{NETWORK}'}</ListItem>
-        <ListItem>{'{PROFILE}'}</ListItem>
-      </NavList>
-      <NavList>
-        <ListItem>{'{SIGN OUT}'}</ListItem>
       </NavList>
     </Nav>
   )
@@ -198,3 +210,19 @@ const FooterNavItem = tw.li`text-sm`
 const InfinityText = tw.span`text-xl font-light -translate-y-[3px]`
 const StyledSunIcon = tw(SunIcon)`h-10`
 const StyledMoonIcon = tw(MoonIcon)`h-10`
+
+export interface AppLoaderData {
+  user: {
+    username: string
+    email: string
+  }
+}
+
+export function appLoader(): AppLoaderData {
+  return {
+    user: {
+      username: 'tim',
+      email: 'tim@timtam.com'
+    }
+  }
+}

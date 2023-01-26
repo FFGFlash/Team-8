@@ -12,7 +12,7 @@ import useSocket from 'src/client/hooks/useSocket'
 import { Vector3 } from 'three'
 import { Ray } from '@dimforge/rapier3d-compat'
 
-export const colors = ['lime', 'hotpink', 'red', 'yellow']
+export const colors = ['orange', 'hotpink', 'red', 'yellow']
 
 interface PlayerProps {
   data: User
@@ -29,36 +29,28 @@ export default function Player({ data }: PlayerProps) {
   const isOwner = data.id === socket.id
   const [color, setColor] = useState(0)
   const ref = useRef<RigidBodyApi>(null!)
-
   const rapier = useRapier()
+  const [, getControls] = useKeyboardControls()
 
-  const [, get] = useKeyboardControls()
+  const { forward, backward, left, right, jump, change_color } = getControls()
 
-  const handleClick =
-    isOwner &&
-    (() => {
-      const newColor = (color + 1) % colors.length
-      setColor(newColor)
-      socket.emit('set-color', newColor)
-    })
-
+  //Change Color Mechanic
   useEffect(() => {
-    if (!isOwner) return
-    const interval = setInterval(() => {
-      const positionalData = {
-        position: ref.current.translation().toArray(),
-        rotation: ref.current.rotation().toArray()
-      }
+    if (!isOwner || !change_color) return
+    const newColor = (color + 1) % colors.length
+    setColor(newColor)
+    socket.emit('set-color', newColor)
+  }, [change_color])
 
-      socket.emit('update-positional-data', positionalData)
-    }, 1000 / 30)
-    return () => clearInterval(interval)
-  }, [])
+  // useEffect(() => {
+  //   if (!isOwner) return
+  //   const interval = setInterval(() => {}, 1000 / 30)
+  //   return () => clearInterval(interval)
+  // }, [])
 
   useFrame(state => {
     if (!isOwner) return
 
-    const { forward, backward, left, right, jump } = get()
     state.camera.position.set(...ref.current.translation().toArray())
     frontVector.set(
       0,
@@ -83,16 +75,32 @@ export default function Player({ data }: PlayerProps) {
       10,
       false,
       undefined,
-      1
+      undefined,
+      undefined,
+      ref.current as unknown as any
     )
     const grounded = ray && ray.collider && Math.abs(ray.toi) <= 1.75
-    if (jump && grounded) ref.current.setLinvel({ x: 0, y: 7.5, z: 0 })
+    if (jump && grounded) ref.current.setLinvel({ x: 0, y: 12.5, z: 0 })
+
+    const positionalData = {
+      position: ref.current.translation().toArray(),
+      rotation: ref.current.rotation().toArray()
+    }
+
+    socket.emit('update-positional-data', positionalData)
   })
 
   return (
-    <RigidBody ref={ref} position={data.position} quaternion={data.rotation}>
+    <RigidBody
+      ref={ref}
+      mass={1}
+      type='dynamic'
+      position={data.position}
+      quaternion={data.rotation}
+      enabledRotations={[false, true, false]}
+    >
       <CuboidCollider args={[0.5, 0.5, 0.5]}>
-        <mesh onClick={handleClick || undefined}>
+        <mesh castShadow>
           <boxGeometry />
           <meshStandardMaterial color={colors[isOwner ? color : data.color]} />
         </mesh>

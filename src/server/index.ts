@@ -1,6 +1,7 @@
 import { createServer } from 'http'
 import { AddressInfo } from 'net'
 import { Server, Socket } from 'socket.io'
+import './firebase'
 import app from './app'
 
 const { PORT = 3000 } = process.env
@@ -18,8 +19,8 @@ io.on('connection', socket => {
   )
 
   const user: Partial<User> = {
-    position: [0, 10, 0],
-    rotation: [0, 0, 0, 0],
+    position: [(Math.random() - 0.5) * 10, 1.5, (Math.random() - 0.5) * 10],
+    rotation: [0, (Math.random() - 0.5) * Math.PI * 2, 0, 0],
     color: 0
   }
 

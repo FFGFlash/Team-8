@@ -67,6 +67,7 @@ function Desktop() {
   return (
     <KeyboardControls
       map={[
+        { name: 'change_color', keys: ['e', 'E'] },
         { name: 'forward', keys: ['ArrowUp', 'w', 'W'] },
         { name: 'backward', keys: ['ArrowDown', 's', 'S'] },
         { name: 'left', keys: ['ArrowLeft', 'a', 'A'] },

@@ -59,6 +59,24 @@ const BaseConfig: Configuration = {
         }
       },
       {
+        test: /\.(?:hdr)/i,
+        exclude: /node_modules/,
+        type: 'asset/resource',
+        generator: {
+          outputPath: 'assets/textures',
+          publicPath: '/assets/textures/'
+        }
+      },
+      {
+        test: /\.(?:glb)/i,
+        exclude: /node_modules/,
+        type: 'asset/resource',
+        generator: {
+          outputPath: 'assets/models',
+          publicPath: '/assets/models/'
+        }
+      },
+      {
         test: /\.(?:svg)$/i,
         exclude: /node_modules/,
         use: '@svgr/webpack',

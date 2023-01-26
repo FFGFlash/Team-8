@@ -1,13 +1,27 @@
+import tw from 'twin.macro'
+import { useState } from 'react'
+import Wrapper from '../components/styled/Wrapper.styled'
+import Freestyle from '../features/home/Freestyle'
+
 export default function Home() {
+  const [freestyleActive, setFreestyleActive] = useState(false)
+
   return (
-    <div>
-      <h1>Header 1</h1>
-      <h2>Header 2</h2>
-      <h3>Header 3</h3>
-      <h4>Header 4</h4>
-      <h5>Header 5</h5>
-      <h6>Header 6</h6>
-      <p>Paragraph</p>
-    </div>
+    <Wrapper>
+      <SomeDiv>
+        <h2>New Album Out Now!</h2>
+        <button onClick={() => setFreestyleActive(curr => !curr)}>
+          {freestyleActive ? 'Close' : 'Play'}
+        </button>
+      </SomeDiv>
+      {freestyleActive && (
+        <FreestyleOverlay>
+          <Freestyle />
+        </FreestyleOverlay>
+      )}
+    </Wrapper>
   )
 }
+
+const SomeDiv = tw.div`text-center`
+const FreestyleOverlay = tw.div`absolute bottom-0 right-0 z-50`

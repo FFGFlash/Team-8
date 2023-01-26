@@ -22,7 +22,7 @@ function Root() {
 
   return (
     <ThemeContext.Provider
-      value={{ toggleDarkMode, logo: darkMode ? Logo : LogoLight }}
+      value={{ toggleDarkMode, logo: darkMode ? Logo : LogoLight, darkMode }}
     >
       <RouterProvider router={router} fallbackElement={<Loading />} />
     </ThemeContext.Provider>
@@ -32,12 +32,10 @@ function Root() {
 interface IThemeContext {
   toggleDarkMode: () => void
   logo: string
+  darkMode: boolean
 }
 
-export const ThemeContext = createContext<IThemeContext>({
-  toggleDarkMode: () => undefined,
-  logo: ''
-})
+export const ThemeContext = createContext<IThemeContext>(null!)
 
 const rootElement = document.getElementById('root')
 if (!rootElement) throw new Error('Root not found')

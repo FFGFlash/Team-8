@@ -23,7 +23,6 @@
   #root {
     @apply w-screen;
     @apply h-screen;
-    @apply min-h-screen;
   }
 
   p {

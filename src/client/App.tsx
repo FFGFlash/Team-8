@@ -15,6 +15,7 @@ import { useContext, useEffect, useState } from 'react'
 import { ThemeContext } from '.'
 import { Link, useLocation } from 'react-router-dom'
 import { NavLink } from 'react-router-dom'
+import isMobileDevice from './utils/isMobileDevice'
 // import addEventListener from './utils/addEventListener'
 
 export default function App() {
@@ -67,16 +68,12 @@ function Head() {
       if (root) root.style.height = '90vh'
       else timeout = setTimeout(waitForRoot, 100)
     }
-    if (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      )
-    ) {
-      waitForRoot()
-    }
+  
+    isMobileDevice() && waitForRoot()
 
     return () => timeout && clearTimeout(timeout)
   }, [])
+
   return (
     <Helmet>
       <meta charSet='UTF-8' />

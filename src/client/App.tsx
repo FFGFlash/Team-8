@@ -56,7 +56,9 @@ export default function App() {
 const AppWrapper = tw.div`flex flex-col min-h-full`
 const BodyWrapper = tw.div`flex flex-1`
 const PageWrapper = tw.div`flex flex-1`
-const HamburgerToggle = tw(Hamburger)`w-12 h-12 text-white`
+const HamburgerToggle = tw(
+  Hamburger
+)`w-12 h-12 text-neutral-900 dark:text-white`
 
 function Head() {
   //TODO Make this more Adaptive
@@ -68,7 +70,7 @@ function Head() {
       if (root) root.style.height = '90vh'
       else timeout = setTimeout(waitForRoot, 100)
     }
-  
+
     isMobileDevice() && waitForRoot()
 
     return () => timeout && clearTimeout(timeout)

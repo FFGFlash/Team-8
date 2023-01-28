@@ -6,7 +6,7 @@
   - [Table of Contents](#table-of-contents)
 - [Request Methods](#request-methods)
   - [Current Endpoint Methods](#current-endpoint-methods)
-- [API Response](#api-response)
+- [API and Error Response](#api-and-error-response)
 - [URL Params](#url-params)
 - [/rest](#rest)
   - [GET: /rest](#get-rest)
@@ -39,13 +39,17 @@
 | /rest/profile/:username | ✅         |      |     |       |        | ✅      |
 | /rest/coffee            | ✅         | ✅   | ✅  | ✅    | ✅     | ✅      |
 
-# API Response
+# API and Error Response
 
 ```ts
 declare interface ApiResponse {
   message: string
   status: number
   data: any
+}
+
+declare interface ErrorResponse extends ApiResponse {
+  data?: undefined
 }
 ```
 

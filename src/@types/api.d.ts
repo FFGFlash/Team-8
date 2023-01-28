@@ -1,7 +1,7 @@
 declare interface ApiResponse {
   message: string
   status: number
-  data?: any
+  data: any
 }
 
 declare interface ErrorResponse extends ApiResponse {
@@ -23,16 +23,4 @@ declare interface GetRestResponse extends ApiResponse {
   /** {major}.{minor}.{patch} */
   message: `${number}.${number}.${number}`
   status: 200
-}
-
-//* GET: /rest/profile/:username
-
-declare interface GetUserProfileResponse extends ApiResponse {
-  status: 200
-  data: {
-    username: string
-    firstName: string
-    lastName: string
-    password: string
-  }
 }

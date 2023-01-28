@@ -1,4 +1,5 @@
-import e from 'express'
+import cookieParser from 'cookie-parser'
+import e, { json, urlencoded } from 'express'
 import { join } from 'path'
 import errorHandler, { StatusError } from './middleware/errorHandler'
 import api from './routes/api'
@@ -16,6 +17,8 @@ if (NODE_ENV === 'development') {
   const connectLivereload = require('connect-livereload')
   app.use(connectLivereload())
 }
+
+app.use(json(), urlencoded({ extended: true }), cookieParser())
 
 app.use('*', (req, res, next) =>
   !req.headers.accept?.includes('text/html')

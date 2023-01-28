@@ -1,10 +1,6 @@
-import { Response, Router } from 'express'
-import { auth } from 'firebase-admin'
-import { getApp } from 'firebase-admin/app'
+import { NextFunction, Request, Response, Router } from 'express'
 import { STATUS_CODES } from 'http'
 import { StatusError } from '../middleware/errorHandler'
-
-const app = getApp()
 
 const api = Router()
 
@@ -14,53 +10,95 @@ function respond(
   data: any = {},
   message?: string
 ) {
-  return res.status(status).json({
+  if (res.headersSent) return false
+  res.status(status).json({
     message: message || STATUS_CODES[status],
     status,
     data
   })
+  return true
 }
 
-//* GET: /rest/profile/:username - gets the public profile of the provided username
-api.get('/profile/:username', (req, res) => {
-  const { username } = req.params
-  respond(res, 200, {
-    profile: {
-      username,
-      email: `${username}@timtam.com`
-    }
+/**
+ *
+ * @param methods
+ * @returns
+ */
+function allowedMethods(...methods: RequestMethod[]) {
+  !methods.includes('OPTIONS') && methods.push('OPTIONS')
+  methods.includes('GET') && methods.push('HEAD')
+  const Allow = methods.join(',')
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (res.headersSent) return next()
+    res
+      .writeHead(req.method === 'OPTIONS' ? 204 : 405, {
+        Allow
+      })
+      .end()
+  }
+}
+
+api
+  //* GET: /rest/profile/:username - gets the public profile of the provided username
+  .get('/profile/:username', (req, res, next) => {
+    const { username } = req.params
+    !respond(res, 200, {
+      profile: {
+        username,
+        email: `${username}@timtam.com`,
+        firstName: username,
+        lastName: 'Tam'
+      }
+    }) && next()
   })
-})
+  .all('/profile/:username', allowedMethods('GET'))
 
 api
   //* GET: /rest/profile - gets the profile of the currently logged in user
-  .get('/profile', (req, res) => {
-    respond(res, 200, {
+  .get('/profile', (req, res, next) => {
+    !respond(res, 200, {
       profile: {
-        username: 'Tim',
+        username: 'TheTimTam',
         email: 'tim&timtam.com',
-        password: '5f4dcc3b5aa765d61d8327deb882cf99'
+        password: '5f4dcc3b5aa765d61d8327deb882cf99',
+        firstName: 'Tim',
+        lastName: 'Tam'
       }
-    })
+    }) && next()
   })
   //* POST: /rest/profile - create a new profile or sign in to an existing profile
-  .post('/profile', (req, res) => {
-    respond(res, 200)
+  .post('/profile', (req, res, next) => {
+    !respond(res, 200) && next()
   })
-  //* PATCH: /rest/profile - updates the profile of the currently logged in user
-  .patch('/profile', (req, res) => {
-    respond(res, 200, {
+  //* PUT: /rest/profile - updates the critical information of the currently logged in user
+  .put('/profile', (req, res, next) => {
+    !respond(res, 200, {
       profile: {
         username: 'Tim',
         email: 'tim&timtam.com',
-        password: 'f1086f68460b65771de50a970cd1242d'
+        password: 'f1086f68460b65771de50a970cd1242d',
+        firstName: 'Tim',
+        lastName: 'Tam'
       }
-    })
+    }) && next()
+  })
+  //* PATCH: /rest/profile - updates the non-critical information of the currently logged in user
+  .patch('/profile', (req, res, next) => {
+    !respond(res, 200, {
+      profile: {
+        username: 'Tim',
+        email: 'tim&timtam.com',
+        password: '5f4dcc3b5aa765d61d8327deb882cf99',
+        firstName: 'Timothy',
+        lastName: 'Tammy'
+      }
+    }) && next()
   })
   //* DELETE: /rest/profile - deletes the currently logged in user
-  .delete('/profile', (req, res) => {
-    respond(res, 200)
+  .delete('/profile', (req, res, next) => {
+    !respond(res, 200) && next()
   })
+  .all('/profile', allowedMethods('GET', 'POST', 'PUT', 'PATCH', 'DELETE'))
 
 api
   //* GET: /rest/coffee - attempts to get some coffee from the pot
@@ -86,6 +124,7 @@ api
       418
     )
   })
+  .all('/coffee', allowedMethods('GET', 'POST', 'PUT', 'PATCH', 'DELETE'))
 
 api.use(() => {
   throw new StatusError('Invalid api endpoint', 404)

@@ -22,7 +22,6 @@ const SPEED = 5
 const direction = new Vector3()
 const frontVector = new Vector3()
 const sideVector = new Vector3()
-const rotation = new Vector3()
 
 export default function Player({ data }: PlayerProps) {
   const [socket] = useSocket()

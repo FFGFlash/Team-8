@@ -19,22 +19,23 @@
 
 # Request Methods
 
-| Methods | Description                              | Typical Response Codes                             | Content Delivery |
-| ------- | ---------------------------------------- | -------------------------------------------------- | ---------------- |
-| GET     | Used to get information (Ready-Only)     | 200 (OK) 404 (NOT FOUND)                           | Query Parameters |
-| POST    | Used to create entries/perform actions   | 200 (OK) 201 (CREATED) 400 (BAD REQUEST)           | JSON Body        |
-| PUT     | Used to update/replace existing entries  | 200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)          | JSON Body        |
-| PATCH   | Used to update existing entries          | 200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)          | JSON Body        |
-| DELETE  | Used to delete existing entries          | 204 (NO CONTENT) 400 (BAD REQUEST) 404 (NOT FOUND) | JSON Body        |
-| HEAD    | Used to get the headers of a get request |                                                    | Query Parameters |
+| Methods | Description                                      | Typical Response Codes                             | Content Delivery |
+| ------- | ------------------------------------------------ | -------------------------------------------------- | ---------------- |
+| GET     | Used to get information (Ready-Only)             | 200 (OK) 404 (NOT FOUND)                           | Query Parameters |
+| POST    | Used to create entries/perform actions           | 200 (OK) 201 (CREATED) 400 (BAD REQUEST)           | JSON Body        |
+| PUT     | Used to update/replace existing entries          | 200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)          | JSON Body        |
+| PATCH   | Used to update existing entries                  | 200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)          | JSON Body        |
+| DELETE  | Used to delete existing entries                  | 204 (NO CONTENT) 400 (BAD REQUEST) 404 (NOT FOUND) | JSON Body        |
+| HEAD    | Used to get the headers of a get request         |                                                    | Query Parameters |
+| OPTIONS | Used to get the available methods of an endpoint |                                                    | N/A              |
 
 ## Current Endpoint Methods
 
-| Endpoints               | GET | POST | PUT | PATCH | DELETE |
-| ----------------------- | --- | ---- | --- | ----- | ------ |
-| /rest/profile           | ✅  | ✅   | ✅  | ✅    | ✅     |
-| /rest/profile/:username | ✅  |      |     |       |        |
-| /rest/coffee            | ✅  | ✅   | ✅  | ✅    | ✅     |
+| Endpoints               | GET / HEAD | POST | PUT | PATCH | DELETE | OPTIONS |
+| ----------------------- | ---------- | ---- | --- | ----- | ------ | ------- |
+| /rest/profile           | ✅         | ✅   | ✅  | ✅    | ✅     | ✅      |
+| /rest/profile/:username | ✅         |      |     |       |        | ✅      |
+| /rest/coffee            | ✅         | ✅   | ✅  | ✅    | ✅     | ✅      |
 
 # API Response
 

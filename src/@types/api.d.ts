@@ -4,6 +4,15 @@ interface ApiResponse {
   data: any
 }
 
+type RequestMethod =
+  | 'GET'
+  | 'POST'
+  | 'PUT'
+  | 'PATCH'
+  | 'DELETE'
+  | 'HEAD'
+  | 'OPTIONS'
+
 //* GET: /rest/profile
 
 interface GetProfileResponse extends ApiResponse {

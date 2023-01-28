@@ -4,6 +4,14 @@ import { StatusError } from '../middleware/errorHandler'
 
 const api = Router()
 
+/**
+ * Used to easily send standardized responses
+ * @param res - The response object used to send the response
+ * @param status - The status code of the response
+ * @param data - The data to send
+ * @param message - The message to send
+ * @returns if the response was successfully sent
+ */
 function respond(
   res: Response,
   status: number,
@@ -20,9 +28,9 @@ function respond(
 }
 
 /**
- *
- * @param methods
- * @returns
+ * Middleware constructor for handling 'OPTIONS' requests and 405 (METHOD NOT ALLOWED) requests
+ * @param methods - The allowed HTTP methods
+ * @returns Middleware function
  */
 function allowedMethods(...methods: RequestMethod[]) {
   !methods.includes('OPTIONS') && methods.push('OPTIONS')
@@ -38,8 +46,15 @@ function allowedMethods(...methods: RequestMethod[]) {
   }
 }
 
+//* /rest
 api
-  //* GET: /rest/profile/:username - gets the public profile of the provided username
+  .get('/', (req, res) => {
+    respond(res, 200, undefined, '1.0.0')
+  })
+  .all('/', allowedMethods('GET'))
+
+//* /rest/profile/:username
+api
   .get('/profile/:username', (req, res, next) => {
     const { username } = req.params
     !respond(res, 200, {
@@ -53,8 +68,8 @@ api
   })
   .all('/profile/:username', allowedMethods('GET'))
 
+//* /rest/profile
 api
-  //* GET: /rest/profile - gets the profile of the currently logged in user
   .get('/profile', (req, res, next) => {
     !respond(res, 200, {
       profile: {
@@ -66,11 +81,9 @@ api
       }
     }) && next()
   })
-  //* POST: /rest/profile - create a new profile or sign in to an existing profile
   .post('/profile', (req, res, next) => {
     !respond(res, 200) && next()
   })
-  //* PUT: /rest/profile - updates the critical information of the currently logged in user
   .put('/profile', (req, res, next) => {
     !respond(res, 200, {
       profile: {
@@ -82,7 +95,6 @@ api
       }
     }) && next()
   })
-  //* PATCH: /rest/profile - updates the non-critical information of the currently logged in user
   .patch('/profile', (req, res, next) => {
     !respond(res, 200, {
       profile: {
@@ -94,30 +106,25 @@ api
       }
     }) && next()
   })
-  //* DELETE: /rest/profile - deletes the currently logged in user
   .delete('/profile', (req, res, next) => {
     !respond(res, 200) && next()
   })
   .all('/profile', allowedMethods('GET', 'POST', 'PUT', 'PATCH', 'DELETE'))
 
+//* /rest/coffee
 api
-  //* GET: /rest/coffee - attempts to get some coffee from the pot
   .get('/coffee', () => {
     throw new StatusError('Sorry all out of coffee!', 418)
   })
-  //* POST: /rest/coffee - attempts to brew some coffee
   .post('/coffee', () => {
     throw new StatusError("I'm a teapot, I can't brew coffee!", 418)
   })
-  //* PATCH: /rest/coffee - attempts to update coffee?
   .patch('/coffee', () => {
     throw new StatusError('Did you just try to update coffee?', 418)
   })
-  //* PUT: /rest/coffee - attempts to replace the teapot with a coffee pot
   .put('/coffee', () => {
     throw new StatusError('I refuse to be replaced with a coffee pot!', 418)
   })
-  //* DELETE: /rest/coffee - attempts to delete the coffee pot
   .delete('/coffee', () => {
     throw new StatusError(
       'You really tried to delete the non-existent coffee?',

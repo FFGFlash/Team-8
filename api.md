@@ -8,6 +8,8 @@
   - [Current Endpoint Methods](#current-endpoint-methods)
 - [API Response](#api-response)
 - [URL Params](#url-params)
+- [/rest](#rest)
+  - [GET: /rest](#get-rest)
 - [/rest/profile](#restprofile)
   - [GET: /rest/profile](#get-restprofile)
   - [POST: /rest/profile](#post-restprofile)
@@ -40,7 +42,7 @@
 # API Response
 
 ```ts
-interface ApiResponse {
+declare interface ApiResponse {
   message: string
   status: number
   data: any
@@ -55,6 +57,20 @@ this allows for more cohesive requests.
 URL parameters are denoted with a leading colon,
 an example being '/rest/profile/:username' where 'username' is a URL parameter.
 
+# /rest
+
+## GET: /rest
+
+Gets the current API version
+
+```ts
+declare interface GetRestResponse extends ApiResponse {
+  /** {major}.{minor}.{patch} */
+  message: `${number}.${number}.${number}`
+  status: 200
+}
+```
+
 # /rest/profile
 
 ## GET: /rest/profile
@@ -62,7 +78,7 @@ an example being '/rest/profile/:username' where 'username' is a URL parameter.
 Gets the profile information for the current user.
 
 ```ts
-interface GetProfileResponse extends ApiResponse {
+declare interface GetProfileResponse extends ApiResponse {
   status: 200
   data: {
     username: string
@@ -79,7 +95,7 @@ interface GetProfileResponse extends ApiResponse {
 Creates a new user or sign in to an existing one.
 
 ```ts
-type PostProfileBody =
+declare type PostProfileBody =
   | {
       method: 'sign-up'
       email: string
@@ -94,11 +110,11 @@ type PostProfileBody =
       password: string
     }
 
-interface PostProfileSignUpResponse extends ApiResponse {
+declare interface PostProfileSignUpResponse extends ApiResponse {
   status: 201
 }
 
-type PostProfileSignInResponse = GetProfileResponse
+declare type PostProfileSignInResponse = GetProfileResponse
 ```
 
 ## PUT: /rest/profile
@@ -106,14 +122,14 @@ type PostProfileSignInResponse = GetProfileResponse
 Used to update user's critical information
 
 ```ts
-interface PutProfileBody {
+declare interface PutProfileBody {
   username?: string
   email?: string
   newPassword?: string
   password: string
 }
 
-type PutProfileResponse = GetProfileResponse
+declare type PutProfileResponse = GetProfileResponse
 ```
 
 ## PATCH: /rest/profile
@@ -121,12 +137,12 @@ type PutProfileResponse = GetProfileResponse
 Used to update user's non-critical information
 
 ```ts
-interface PatchProfileBody {
+declare interface PatchProfileBody {
   firstName?: string
   lastName?: string
 }
 
-type PatchProfileResponse = GetProfileResponse
+declare type PatchProfileResponse = GetProfileResponse
 ```
 
 ## DELETE: /rest/profile
@@ -134,11 +150,11 @@ type PatchProfileResponse = GetProfileResponse
 Used to delete the current user
 
 ```ts
-interface DeleteProfileBody {
+declare interface DeleteProfileBody {
   password: string
 }
 
-interface DeleteProfileResponse extends ApiResponse {
+declare interface DeleteProfileResponse extends ApiResponse {
   status: 200
 }
 ```
@@ -150,7 +166,7 @@ interface DeleteProfileResponse extends ApiResponse {
 Used to get the public profile of a specified user
 
 ```ts
-interface GetUserProfileResponse extends ApiResponse {
+declare interface GetUserProfileResponse extends ApiResponse {
   status: 200
   data: {
     username: string

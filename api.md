@@ -21,6 +21,8 @@
 
 # Request Methods
 
+<center>
+
 | Methods | Description                                      | Typical Response Codes                             | Content Delivery |
 | ------- | ------------------------------------------------ | -------------------------------------------------- | ---------------- |
 | GET     | Used to get information (Ready-Only)             | 200 (OK) 404 (NOT FOUND)                           | Query Parameters |
@@ -31,13 +33,19 @@
 | HEAD    | Used to get the headers of a get request         |                                                    | Query Parameters |
 | OPTIONS | Used to get the available methods of an endpoint |                                                    | N/A              |
 
+</center>
+
 ## Current Endpoint Methods
+
+<center>
 
 | Endpoints               | GET / HEAD | POST | PUT | PATCH | DELETE | OPTIONS |
 | ----------------------- | ---------- | ---- | --- | ----- | ------ | ------- |
 | /rest/profile           | ✅         | ✅   | ✅  | ✅    | ✅     | ✅      |
 | /rest/profile/:username | ✅         |      |     |       |        | ✅      |
 | /rest/coffee            | ✅         | ✅   | ✅  | ✅    | ✅     | ✅      |
+
+</center>
 
 # API and Error Response
 

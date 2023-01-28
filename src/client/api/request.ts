@@ -16,15 +16,15 @@ function debug(message: any, ...args: any[]) {
 
 export default class Request<
   GetParams extends RequestParams,
-  GetResponse,
+  GetResponse extends ApiResponse,
   PostBody,
-  PostResponse,
+  PostResponse extends ApiResponse,
   PatchBody,
-  PatchResponse,
+  PatchResponse extends ApiResponse,
   PutBody,
-  PutResponse,
+  PutResponse extends ApiResponse,
   DeleteBody,
-  DeleteResponse
+  DeleteResponse extends ApiResponse
 > {
   readonly endpoint: string
 
@@ -119,14 +119,14 @@ export default class Request<
 
       if (res.status === 204 || res.status === 405) {
         switch (res.headers.get('Content-Type')) {
-          case 'application/json':
+          case 'application/json; charset=utf-8':
             data = {
               status: res.status,
               message: res.headers.get('Allow')
             }
             break
-          case 'text/plain':
-          case 'text/html':
+          case 'text/plain; charset=utf-8':
+          case 'text/html; charset=utf-8':
             data = `Status ${res.status}:\n${Object.entries(res.headers)
               .map(([key, value]) => `${key}: ${value}`)
               .join('\n')}`
@@ -146,12 +146,12 @@ export default class Request<
         }
       } else {
         switch (res.headers.get('Content-Type')) {
-          case 'application/json':
+          case 'application/json; charset=utf-8':
             data = await res.json()
             if (!data) data = { status: 0, message: 'No Data' }
             break
-          case 'text/plain':
-          case 'text/html':
+          case 'text/plain; charset=utf-8':
+          case 'text/html; charset=utf-8':
             data = await res.text()
             if (!data) data = 'Status 0:\nNo Data'
             break

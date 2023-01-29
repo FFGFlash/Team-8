@@ -18,3 +18,5 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_TEAM_8_4F521 }}'
           channelId: live
           projectId: team-8-4f521
+        env:
+          FIREBASE_CLI_EXPERIMENTS: webframeworks

@@ -3,24 +3,18 @@ import { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import Wrapper from '../components/styled/Wrapper.styled'
 import useFormData from '../hooks/useFormData'
 import {
+  browserLocalPersistence,
   createUserWithEmailAndPassword,
   getAuth,
+  setPersistence,
   signInWithEmailAndPassword
 } from 'firebase/auth'
 import ProfileAPI from '../api/profile'
 import { useNavigate } from 'react-router-dom'
 import { FirebaseError } from 'firebase/app'
+import { firebaseErrors } from '../firebase'
 
 const auth = getAuth()
-
-const firebaseErrors: Record<string, string> = {
-  'auth/email-already-exists':
-    'Looks like we already have a user with that email address.',
-  'auth/internal-error':
-    "Looks like we're having trouble with our authentication servers, please try again.",
-  'auth/user-not-found':
-    "We couldn't find a user with those credentials, please try again."
-}
 
 export default function SignIn() {
   const [createAccount, setCreateAccount] = useState(false)
@@ -50,14 +44,40 @@ export default function SignIn() {
         error = addError('passwordConfirmation', 'must match password')
       if (error) return
       //* If the information is valid create a new user
-      createUserWithEmailAndPassword(auth, data.email, data.password)
-        .then(() => {
-          //* Once the user is created tell our server to create their profile
-          ProfileAPI.post({
-            displayName: data.displayName,
-            firstName: data.firstName,
-            lastName: data.lastName
-          })
+      setPersistence(auth, browserLocalPersistence)
+        .then(() =>
+          createUserWithEmailAndPassword(auth, data.email, data.password).then(
+            () => {
+              //* Once the user is created tell our server to create their profile
+              ProfileAPI.post({
+                displayName: data.displayName,
+                firstName: data.firstName,
+                lastName: data.lastName
+              })
+                .then(() => {
+                  navigate('/profile')
+                })
+                .catch(error => {
+                  console.error(error)
+                  addError(
+                    'error',
+                    'Unknown error occurred while creating profile.'
+                  )
+                })
+            }
+          )
+        )
+        .catch((error: FirebaseError) => {
+          console.error(error.code)
+          addError('error', firebaseErrors[error.code] || error.message)
+        })
+    } else {
+      if (!data.email) error = addError('email', 'required')
+      if (!data.password) error = addError('password', 'required')
+      if (error) return
+      setPersistence(auth, browserLocalPersistence)
+        .then(() =>
+          signInWithEmailAndPassword(auth, data.email, data.password)
             .then(() => {
               navigate('/profile')
             })
@@ -68,19 +88,7 @@ export default function SignIn() {
                 'Unknown error occurred while creating profile.'
               )
             })
-        })
-        .catch((error: FirebaseError) => {
-          console.error(error.code)
-          addError('error', firebaseErrors[error.code] || error.message)
-        })
-    } else {
-      if (!data.email) error = addError('email', 'required')
-      if (!data.password) error = addError('password', 'required')
-      if (error) return
-      signInWithEmailAndPassword(auth, data.email, data.password)
-        .then(async () => {
-          navigate('/profile')
-        })
+        )
         .catch((error: FirebaseError) => {
           console.error(error.code)
           addError('error', firebaseErrors[error.code] || error.message)

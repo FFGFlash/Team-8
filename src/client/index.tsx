@@ -1,17 +1,19 @@
 import './index.css'
 import './firebase'
 import { createRoot } from 'react-dom/client'
-import { createContext, StrictMode, useEffect } from 'react'
+import { createContext, StrictMode, useEffect, useState } from 'react'
 import { RouterProvider } from 'react-router-dom'
-import router from './router'
 import Loading from './components/Loading'
 import useStorage from './hooks/useStorage'
+import getRouter from './router'
 
 import Logo from 'client/assets/image/logo.png'
 import LogoLight from 'client/assets/image/logo-light.png'
+import { getAuth, onAuthStateChanged } from 'firebase/auth'
 
 function Root() {
   const [darkMode, setDarkMode] = useStorage('darkMode', true)
+  const [authenticated, setAuthenticated] = useState<boolean | null>(null)
 
   useEffect(() => {
     const classList = document.documentElement.classList
@@ -21,11 +23,22 @@ function Root() {
 
   const toggleDarkMode = () => setDarkMode(curr => !curr)
 
+  //* Wait for the authentication servers to initialize
+  useEffect(
+    () =>
+      onAuthStateChanged(getAuth(), user => setAuthenticated(user !== null)),
+    []
+  )
+
   return (
     <ThemeContext.Provider
       value={{ toggleDarkMode, logo: darkMode ? Logo : LogoLight, darkMode }}
     >
-      <RouterProvider router={router} fallbackElement={<Loading />} />
+      {authenticated !== null ? (
+        <RouterProvider router={getRouter()} fallbackElement={<Loading />} />
+      ) : (
+        <Loading />
+      )}
     </ThemeContext.Provider>
   )
 }

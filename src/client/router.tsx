@@ -13,11 +13,17 @@ const NFT = lazy(() => import('./pages/NFT'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Coffee = lazy(() => import('./pages/Coffee'))
 
-function authLoader(shouldBeAuth: boolean, redirectUrl: string) {
-  return shouldBeAuth
-    ? () => !getAuth().currentUser && redirect(redirectUrl)
-    : () => !!getAuth().currentUser && redirect(redirectUrl)
-}
+/**
+ * If the user is authenticated go to it's element, otherwise,
+ * redirects to the provided URL
+ * @param redirectUrl - The url to redirect too
+ * @param shouldBeAuth - Whether the user should be authenticated or not
+ * @returns Loader function to use for a page
+ */
+const authLoader =
+  (redirectUrl: string, shouldBeAuth = true) =>
+  () =>
+    !getAuth().currentUser === shouldBeAuth && redirect(redirectUrl)
 
 const routes: RouteObject[] = [
   {
@@ -34,17 +40,17 @@ const routes: RouteObject[] = [
       },
       {
         path: '/sign-in',
-        loader: authLoader(false, '/profile'),
+        loader: authLoader('/profile', false),
         element: <SignIn />
       },
       {
         path: '/team-8-land',
-        loader: authLoader(true, '/sign-in'),
+        loader: authLoader('/sign-in'),
         element: <Metaverse />
       },
       {
         path: '/nft',
-        loader: authLoader(true, '/sign-in'),
+        loader: authLoader('/sign-in'),
         element: <NFT />
       },
       {
@@ -54,7 +60,7 @@ const routes: RouteObject[] = [
       },
       {
         path: '/profile',
-        loader: authLoader(true, '/sign-in'),
+        loader: authLoader('/sign-in'),
         element: <Profile />,
         errorElement: <Error />,
         children: [

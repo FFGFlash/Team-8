@@ -1,6 +1,7 @@
 import { Router } from '@remix-run/router'
 import { getAuth } from 'firebase/auth'
 import { lazy } from 'react'
+import { redirect } from 'react-router-dom'
 import { RouteObject, createBrowserRouter } from 'react-router-dom'
 import App, { appAction, appLoader } from './App'
 import Error from './pages/Error'
@@ -11,6 +12,12 @@ const Metaverse = lazy(() => import('./pages/Metaverse'))
 const NFT = lazy(() => import('./pages/NFT'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Coffee = lazy(() => import('./pages/Coffee'))
+
+function authLoader(shouldBeAuth: boolean, redirectUrl: string) {
+  return shouldBeAuth
+    ? () => !getAuth().currentUser && redirect(redirectUrl)
+    : () => !!getAuth().currentUser && redirect(redirectUrl)
+}
 
 const routes: RouteObject[] = [
   {
@@ -27,14 +34,17 @@ const routes: RouteObject[] = [
       },
       {
         path: '/sign-in',
+        loader: authLoader(false, '/profile'),
         element: <SignIn />
       },
       {
         path: '/team-8-land',
+        loader: authLoader(true, '/sign-in'),
         element: <Metaverse />
       },
       {
         path: '/nft',
+        loader: authLoader(true, '/sign-in'),
         element: <NFT />
       },
       {
@@ -44,10 +54,7 @@ const routes: RouteObject[] = [
       },
       {
         path: '/profile',
-        loader: () => {
-          console.log('#', getAuth().currentUser)
-          return null
-        },
+        loader: authLoader(true, '/sign-in'),
         element: <Profile />,
         errorElement: <Error />,
         children: [

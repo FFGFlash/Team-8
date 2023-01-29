@@ -1,0 +1,28 @@
+{
+  "settings": {
+    "bullet": "-",
+    "fence": "`",
+    "fences": false,
+    "incrementListMarker": true,
+    "closeAtx": false,
+    "emphasis": "*",
+    "listItemIndent": "one",
+    "quote": "'",
+    "resourceLink": false,
+    "rule": "*",
+    "ruleRepetition": 3,
+    "ruleSpaces": false,
+    "setext": false,
+    "strong": "*",
+    "tightDefinitions": true
+  },
+  "plugins": [
+    "remark-preset-lint-recommended",
+    [
+      "remark-toc",
+      {
+        "heading": "table of contents"
+      }
+    ]
+  ]
+}

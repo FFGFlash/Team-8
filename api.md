@@ -2,54 +2,75 @@
 
 ## Table of Contents
 
-- [API Documentation](#api-documentation)
-  - [Table of Contents](#table-of-contents)
 - [Request Methods](#request-methods)
+
   - [Current Endpoint Methods](#current-endpoint-methods)
+
 - [API and Error Response](#api-and-error-response)
+
 - [URL Params](#url-params)
+
 - [/rest](#rest)
+
   - [GET: /rest](#get-rest)
+
 - [/rest/profile](#restprofile)
+
   - [GET: /rest/profile](#get-restprofile)
   - [POST: /rest/profile](#post-restprofile)
-  - [PUT: /rest/profile](#put-restprofile)
   - [PATCH: /rest/profile](#patch-restprofile)
   - [DELETE: /rest/profile](#delete-restprofile)
+
 - [/rest/profile/:username](#restprofileusername)
+
   - [GET: /rest/profile/:username](#get-restprofileusername)
 
 # Request Methods
 
-<!-- GITHUB MAY STRIP THESE BUT THEY STILL MAKE MARKDOWN PREVIEW NICE -->
-<center>
-
-| Methods | Description                                      |               Typical Response Codes               | Content Delivery |
-| ------: | ------------------------------------------------ | :------------------------------------------------: | :--------------: |
-|     GET | Used to get information (Ready-Only)             |              200 (OK) 404 (NOT FOUND)              | Query Parameters |
-|    POST | Used to create entries/perform actions           |      200 (OK) 201 (CREATED) 400 (BAD REQUEST)      |    JSON Body     |
-|     PUT | Used to update/replace existing entries          |     200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)      |    JSON Body     |
-|   PATCH | Used to update existing entries                  |     200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)      |    JSON Body     |
-|  DELETE | Used to delete existing entries                  | 204 (NO CONTENT) 400 (BAD REQUEST) 404 (NOT FOUND) |    JSON Body     |
-|    HEAD | Used to get the headers of a get request         |                                                    | Query Parameters |
-| OPTIONS | Used to get the available methods of an endpoint |                                                    |       N/A        |
-
-</center>
-<!-- GITHUB MAY STRIP THESE BUT THEY STILL MAKE MARKDOWN PREVIEW NICE -->
+| Methods | Description                                      |               Typical Response Codes               | Content Delivery | Availability |
+| ------: | ------------------------------------------------ | :------------------------------------------------: | :--------------: | :----------: |
+|     GET | Used to get information (Ready-Only)             |              200 (OK) 404 (NOT FOUND)              |      Query       |      ❔      |
+|    POST | Used to create entries/perform actions           |      200 (OK) 201 (CREATED) 400 (BAD REQUEST)      |       JSON       |      ❔      |
+|     PUT | Used to update/replace existing entries          |     200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)      |       JSON       |      ❔      |
+|   PATCH | Used to update existing entries                  |     200 (OK) 204 (NO CONTENT) 404 (NOT FOUND)      |       JSON       |      ❔      |
+|  DELETE | Used to delete existing entries                  | 204 (NO CONTENT) 400 (BAD REQUEST) 404 (NOT FOUND) |       JSON       |      ❔      |
+|    HEAD | Used to get the headers of a get request         |                                                    |      Query       |      ✅      |
+| OPTIONS | Used to get the available methods of an endpoint |                                                    |       N/A        |      ✅      |
 
 ## Current Endpoint Methods
 
-<!-- GITHUB MAY STRIP THESE BUT THEY STILL MAKE MARKDOWN PREVIEW NICE -->
-<center>
+All endpoints require the Accept header, and all non-get/head request require the Content-Type header
 
-| Endpoints               | GET / HEAD | POST | PUT | PATCH | DELETE | OPTIONS |
-| ----------------------- | :--------: | :--: | :-: | :---: | :----: | :-----: |
-| /rest/profile           |     ✅     |  ✅  | ✅  |  ✅   |   ✅   |   ✅    |
-| /rest/profile/:username |     ✅     |      |     |       |        |   ✅    |
-| /rest/coffee            |     ✅     |  ✅  | ✅  |  ✅   |   ✅   |   ✅    |
+```ts
+// Non-authenticated get request
+fetch('/rest/profile/ffgflash', {
+  method: 'GET',
+  headers: {
+    Accept: 'application/json'
+  }
+}).then(res => res.json())
 
-</center>
-<!-- GITHUB MAY STRIP THESE BUT THEY STILL MAKE MARKDOWN PREVIEW NICE -->
+// Authenticated post request
+fetch('/rest/profile', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authentication': 'Bearer <YOUR_AUTH_TOKEN>' // The auth token can be retrieved from firebase
+  },
+  body: JSON.stringify({
+    displayName: 'FFGFlash',
+    firstName: 'Drake',
+    lastName: 'Taylor'
+  })
+}).then(res => res.json())
+```
+
+| Endpoints               | Authentication | GET | POST | PUT | PATCH | DELETE |
+| ----------------------- | :------------: | :-: | :--: | :-: | :---: | :----: |
+| /rest/profile           |       ✅       | ✅  |  ✅  |     |  ✅   |   ✅   |
+| /rest/profile/:username |                | ✅  |      |     |       |        |
+| /rest/coffee            |                | ✅  |  ✅  | ✅  |  ✅   |   ✅   |
 
 # API and Error Response
 
@@ -75,6 +96,10 @@ an example being '/rest/profile/:username' where 'username' is a URL parameter.
 
 # /rest
 
+| Authentication | GET | POST | PUT | PATCH | DELETE |
+| :------------: | :-: | :--: | :-: | :---: | :----: |
+|                | ✅  |      |     |       |        |
+
 ## GET: /rest
 
 Gets the current API version
@@ -89,6 +114,10 @@ declare interface GetRestResponse extends ApiResponse {
 
 # /rest/profile
 
+| Authentication | GET | POST | PUT | PATCH | DELETE |
+| :------------: | :-: | :--: | :-: | :---: | :----: |
+|       ✅       | ✅  |  ✅  |     |  ✅   |   ✅   |
+
 ## GET: /rest/profile
 
 Gets the profile information for the current user.
@@ -97,63 +126,41 @@ Gets the profile information for the current user.
 declare interface GetProfileResponse extends ApiResponse {
   status: 200
   data: {
-    username: string
-    email: string
+    displayName: string
     firstName: string
     lastName: string
-    password: string
   }
 }
 ```
 
 ## POST: /rest/profile
 
-Creates a new user or sign in to an existing one.
+Creates a new user profile
 
 ```ts
-declare type PostProfileBody =
-  | {
-      method: 'sign-up'
-      email: string
-      username: string
-      password: string
-      firstName: string
-      lastName: string
-    }
-  | {
-      method: 'sign-in'
-      emailOrUsername: string
-      password: string
-    }
+declare interface PostProfileBody {
+  displayName: string
+  firstName: string
+  lastName: string
+}
 
-declare interface PostProfileSignUpResponse extends ApiResponse {
+declare interface PostProfileResponse extends ApiResponse {
   status: 201
+  data: {
+    displayName: string
+    firstName: string
+    lastName: string
+  }
 }
-
-declare type PostProfileSignInResponse = GetProfileResponse
-```
-
-## PUT: /rest/profile
-
-Used to update user's critical information
-
-```ts
-declare interface PutProfileBody {
-  username?: string
-  email?: string
-  newPassword?: string
-  password: string
-}
-
-declare type PutProfileResponse = GetProfileResponse
 ```
 
 ## PATCH: /rest/profile
 
-Used to update user's non-critical information
+Used to update user's profile information
 
 ```ts
 declare interface PatchProfileBody {
+  displayName?: string
   firstName?: string
   lastName?: string
 }
@@ -166,10 +173,6 @@ declare type PatchProfileResponse = GetProfileResponse
 Used to delete the current user
 
 ```ts
-declare interface DeleteProfileBody {
-  password: string
-}
-
 declare interface DeleteProfileResponse extends ApiResponse {
   status: 200
 }
@@ -177,18 +180,14 @@ declare interface DeleteProfileResponse extends ApiResponse {
 
 # /rest/profile/:username
 
+| Authentication | GET | POST | PUT | PATCH | DELETE |
+| :------------: | :-: | :--: | :-: | :---: | :----: |
+|                | ✅  |      |     |       |        |
+
 ## GET: /rest/profile/:username
 
 Used to get the public profile of a specified user
 
 ```ts
-declare interface GetUserProfileResponse extends ApiResponse {
-  status: 200
-  data: {
-    username: string
-    firstName: string
-    lastName: string
-    password: string
-  }
-}
+declare type GetUserProfileResponse = GetProfileResponse
 ```

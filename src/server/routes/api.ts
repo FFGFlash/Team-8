@@ -73,76 +73,58 @@ api
   })
   .all('/', allowedMethods('GET'))
 
-//* /rest/profile/:username
+//* /rest/profile/:uid
 api
-  .get('/profile/:username', (req, res, next) => {
-    const { username } = req.params
-    !respond(res, 200, {
-      profile: {
-        username,
-        email: `${username}@timtam.com`,
-        firstName: username,
-        lastName: 'Tam'
-      }
-    }) && next()
+  .get('/profile/:uid', async (req, res, next) => {
+    const { uid } = req.params
+    const profileRef = getFirestore().collection('users').doc(uid)
+    const profileSnap = await profileRef.get()
+    if (!profileSnap.exists) throw new StatusError(STATUS_CODES[404], 404)
+    !respond(res, 200, profileSnap.data()) && next()
   })
   .all('/profile/:username', allowedMethods('GET'))
 
 //* /rest/profile
 api
-  .get('/profile', (req, res, next) => {
-    !respond(res, 200, {
-      profile: {
-        username: 'TheTimTam',
-        email: 'tim&timtam.com',
-        password: '5f4dcc3b5aa765d61d8327deb882cf99',
-        firstName: 'Tim',
-        lastName: 'Tam'
-      }
-    }) && next()
+  .get('/profile', (_, res, next) => {
+    const user = res.locals.user as DecodedIdToken
+    if (!user) throw new StatusError(STATUS_CODES[401], 401)
+    const profileRef = getFirestore().collection('users').doc(user.uid)
+    profileRef.get().then(snap => {
+      if (!snap.exists) throw new StatusError(STATUS_CODES[404], 404)
+      !respond(res, 200, snap.data()) && next()
+    })
   })
   .post('/profile', async (req, res, next) => {
-    const { displayName, firstName, lastName } = req.body as PostProfileBody
     const user = res.locals.user as DecodedIdToken
-    if (!user) throw new StatusError(STATUS_CODES[401] as string, 401)
+    if (!user) throw new StatusError(STATUS_CODES[401], 401)
+    const { displayName, firstName, lastName } = req.body as PostProfileBody
     const profileRef = getFirestore().collection('users').doc(user.uid)
-    await profileRef.set({
-      displayName,
-      firstName,
-      lastName
-    })
-    !respond(res, 201, {
-      displayName,
-      firstName,
-      lastName
-    }) && next()
+    const data = { displayName, firstName, lastName }
+    await profileRef.set(data)
+    !respond(res, 201, data) && next()
   })
-  .put('/profile', (req, res, next) => {
-    !respond(res, 200, {
-      profile: {
-        username: 'Tim',
-        email: 'tim&timtam.com',
-        password: 'f1086f68460b65771de50a970cd1242d',
-        firstName: 'Tim',
-        lastName: 'Tam'
-      }
-    }) && next()
+  .patch('/profile', async (req, res, next) => {
+    const user = res.locals.user as DecodedIdToken
+    if (!user) throw new StatusError(STATUS_CODES[401], 401)
+    const { displayName, firstName, lastName } = req.body as PostProfileBody
+    const profileRef = getFirestore().collection('users').doc(user.uid)
+    const profileSnap = await profileRef.get()
+    if (!profileSnap.exists) throw new StatusError(STATUS_CODES[404], 404)
+    const data = { displayName, firstName, lastName }
+    await profileRef.update(data)
+    !respond(res, 200, data) && next()
   })
-  .patch('/profile', (req, res, next) => {
-    !respond(res, 200, {
-      profile: {
-        username: 'Tim',
-        email: 'tim&timtam.com',
-        password: '5f4dcc3b5aa765d61d8327deb882cf99',
-        firstName: 'Timothy',
-        lastName: 'Tammy'
-      }
-    }) && next()
-  })
-  .delete('/profile', (req, res, next) => {
+  .delete('/profile', async (_, res, next) => {
+    const user = res.locals.user as DecodedIdToken
+    if (!user) throw new StatusError(STATUS_CODES[401], 401)
+    const profileRef = getFirestore().collection('users').doc(user.uid)
+    const profileSnap = await profileRef.get()
+    if (!profileSnap.exists) throw new StatusError(STATUS_CODES[404], 404)
+    await profileRef.delete()
     !respond(res, 200) && next()
   })
-  .all('/profile', allowedMethods('GET', 'POST', 'PUT', 'PATCH', 'DELETE'))
+  .all('/profile', allowedMethods('GET', 'POST', 'PATCH', 'DELETE'))
 
 //* /rest/coffee
 api

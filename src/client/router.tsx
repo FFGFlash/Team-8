@@ -1,6 +1,8 @@
+import { Router } from '@remix-run/router'
+import { getAuth } from 'firebase/auth'
 import { lazy } from 'react'
 import { RouteObject, createBrowserRouter } from 'react-router-dom'
-import App, { appLoader } from './App'
+import App, { appAction, appLoader } from './App'
 import Error from './pages/Error'
 
 const SignIn = lazy(() => import('./pages/SignIn'))
@@ -16,6 +18,7 @@ const routes: RouteObject[] = [
     id: 'root',
     element: <App />,
     loader: appLoader,
+    action: appAction,
     errorElement: <Error />,
     children: [
       {
@@ -41,11 +44,15 @@ const routes: RouteObject[] = [
       },
       {
         path: '/profile',
+        loader: () => {
+          console.log('#', getAuth().currentUser)
+          return null
+        },
         element: <Profile />,
         errorElement: <Error />,
         children: [
           {
-            path: ':username',
+            path: ':uid',
             id: 'profile'
           }
         ]
@@ -54,5 +61,8 @@ const routes: RouteObject[] = [
   }
 ]
 
-const router = createBrowserRouter(routes)
-export default router
+let router!: Router
+export default function getRouter() {
+  if (!router) router = createBrowserRouter(routes)
+  return router
+}

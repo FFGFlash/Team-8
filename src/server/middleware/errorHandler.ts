@@ -6,11 +6,11 @@ export class StatusError {
   data
 
   constructor(
-    message: string,
+    message?: string,
     status = 500,
     data: { [key: string]: any } = {}
   ) {
-    this.message = message
+    this.message = message || 'Unknown error occurred'
     this.status = status
     this.data = data
   }

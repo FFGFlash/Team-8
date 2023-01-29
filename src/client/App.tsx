@@ -13,12 +13,23 @@ import Icon192x192 from 'client/assets/image/192x192.png'
 import Icon512x512 from 'client/assets/image/512x512.png'
 import { useContext, useEffect, useState } from 'react'
 import { ThemeContext } from '.'
-import { Link, useLocation } from 'react-router-dom'
-import { NavLink } from 'react-router-dom'
+import {
+  Link,
+  redirect,
+  useLocation,
+  ActionFunctionArgs,
+  useRevalidator
+} from 'react-router-dom'
+import { NavLink, useLoaderData, useSubmit } from 'react-router-dom'
+import { getAuth, User, signOut, onAuthStateChanged } from 'firebase/auth'
+import ProfileAPI from './api/profile'
 // import addEventListener from './utils/addEventListener'
+
+const auth = getAuth()
 
 export default function App() {
   const [navVisible, setNavVisible] = useState(false)
+  const { revalidate } = useRevalidator()
 
   const toggleNav = () => setNavVisible(curr => !curr)
 
@@ -31,6 +42,9 @@ export default function App() {
   useEffect(() => {
     setNavVisible(false)
   }, [location])
+
+  //* Revalidate loaders when the authentication state changes
+  useEffect(() => onAuthStateChanged(auth, () => revalidate()), [])
 
   return (
     <>
@@ -103,10 +117,13 @@ interface SideNavProps {
 }
 
 function SideNav({ navVisible, toggleNav }: SideNavProps) {
-  //TODO: Use Loader Data for This
-  const [authenticated, setAuthenticated] = useState(false)
+  const submit = useSubmit()
+  const { user, profile } = useLoaderData() as AppLoaderData
+  const authenticated = !!user
 
   const { logo } = useContext(ThemeContext)
+
+  const handleSignOut = () => submit({ action: 'sign-out' }, { method: 'post' })
 
   return (
     <Nav visible={navVisible}>
@@ -146,17 +163,18 @@ function SideNav({ navVisible, toggleNav }: SideNavProps) {
           </NavList>
           <NavList>
             <ListItem>{'{NETWORK}'}</ListItem>
-            <ListItem>{'{PROFILE}'}</ListItem>
+            <ListItem>
+              <NavLink to='/profile'>{profile?.displayName}</NavLink>
+            </ListItem>
           </NavList>
         </>
       )}
       <NavList>
-        <ListItem
-          className='cursor-pointer'
-          onClick={() => setAuthenticated(curr => !curr)}
-        >
-          {authenticated ? '{TEMP SIGN OUT}' : '{TEMP SIGN IN}'}
-        </ListItem>
+        {authenticated && (
+          <ListItem onClick={handleSignOut} className='cursor-pointer'>
+            Sign Out
+          </ListItem>
+        )}
       </NavList>
     </Nav>
   )
@@ -211,17 +229,36 @@ const StyledSunIcon = tw(SunIcon)`h-10`
 const StyledMoonIcon = tw(MoonIcon)`h-10`
 
 export interface AppLoaderData {
-  user: {
-    username: string
-    email: string
+  user: User | null
+  profile:
+    | {
+        displayName: string
+        firstName: string
+        lastName: string
+      }
+    | undefined
+}
+
+export async function appLoader(): Promise<AppLoaderData> {
+  const user = getAuth().currentUser
+  const profile = user && (await ProfileAPI.get())
+
+  return {
+    user,
+    profile: profile?.data
   }
 }
 
-export function appLoader(): AppLoaderData {
-  return {
-    user: {
-      username: 'tim',
-      email: 'tim@timtam.com'
-    }
+export async function appAction({ request }: ActionFunctionArgs) {
+  const formData = await request.formData()
+
+  const action = formData.get('action')
+
+  switch (action) {
+    case 'sign-out':
+      await signOut(auth)
+      return redirect('/')
+    default:
+      throw new Error('Unknown action')
   }
 }

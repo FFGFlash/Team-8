@@ -1,16 +1,13 @@
 import { useRouteLoaderData } from 'react-router-dom'
 import { AppLoaderData } from '../App'
-import { ProfileLoaderData } from '../features/profile/loader'
 
 export default function Profile() {
-  const { user } = useRouteLoaderData('root') as AppLoaderData
-  const profile = useRouteLoaderData('profile') as ProfileLoaderData
-  const displayUser = profile || user
+  const { user, profile } = useRouteLoaderData('root') as AppLoaderData
 
   return (
     <div>
-      <h1>{displayUser.username}</h1>
-      <p>{displayUser.email}</p>
+      <h1>{profile?.displayName}</h1>
+      <p>{user?.email}</p>
     </div>
   )
 }

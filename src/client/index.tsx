@@ -1,4 +1,5 @@
 import './index.css'
+import './firebase'
 import { createRoot } from 'react-dom/client'
 import { createContext, StrictMode, useEffect } from 'react'
 import { RouterProvider } from 'react-router-dom'

@@ -15,7 +15,6 @@ import { useContext, useEffect, useState } from 'react'
 import { ThemeContext } from '.'
 import { Link, useLocation } from 'react-router-dom'
 import { NavLink } from 'react-router-dom'
-import isMobileDevice from './utils/isMobileDevice'
 // import addEventListener from './utils/addEventListener'
 
 export default function App() {
@@ -37,7 +36,6 @@ export default function App() {
     <>
       <Head />
       <AppWrapper>
-        {/* //TODO: Make an actual toggle button */}
         <NavButton onClick={toggleNav}>
           <HamburgerToggle />
         </NavButton>
@@ -62,19 +60,20 @@ const HamburgerToggle = tw(
 
 function Head() {
   //TODO Make this more Adaptive
+  //! Doesn't look good on Pixel, might need to find an alternative method
   //* This creates a CSS var used for fitting the app inside the browser gui instead of behind it
-  useEffect(() => {
-    let timeout: any
-    function waitForRoot() {
-      const root = document.getElementById('root')
-      if (root) root.style.height = '90vh'
-      else timeout = setTimeout(waitForRoot, 100)
-    }
+  // useEffect(() => {
+  //   let timeout: any
+  //   function waitForRoot() {
+  //     const root = document.getElementById('root')
+  //     if (root) root.style.height = '90vh'
+  //     else timeout = setTimeout(waitForRoot, 100)
+  //   }
 
-    isMobileDevice() && waitForRoot()
+  //   isMobileDevice() && waitForRoot()
 
-    return () => timeout && clearTimeout(timeout)
-  }, [])
+  //   return () => timeout && clearTimeout(timeout)
+  // }, [])
 
   return (
     <Helmet>

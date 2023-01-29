@@ -2,8 +2,6 @@ import { lazy } from 'react'
 import { RouteObject, createBrowserRouter } from 'react-router-dom'
 import App, { appLoader } from './App'
 import Error from './pages/Error'
-import profileLoader from './features/profile/loader'
-import profileAction from './features/profile/action'
 
 const SignIn = lazy(() => import('./pages/SignIn'))
 const Home = lazy(() => import('./pages/Home'))
@@ -43,14 +41,12 @@ const routes: RouteObject[] = [
       },
       {
         path: '/profile',
-        action: profileAction,
         element: <Profile />,
         errorElement: <Error />,
         children: [
           {
             path: ':username',
-            id: 'profile',
-            loader: profileLoader
+            id: 'profile'
           }
         ]
       }

@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response, Router } from 'express'
 import { STATUS_CODES } from 'http'
+import { PostProfileBody } from 'src/client/api/profile'
 import { StatusError } from '../middleware/errorHandler'
+
+import { getAuth, DecodedIdToken } from 'firebase-admin/auth'
+import { getFirestore } from 'firebase-admin/firestore'
+import { getApp } from 'firebase-admin/app'
 
 const api = Router()
 
@@ -46,6 +51,21 @@ function allowedMethods(...methods: RequestMethod[]) {
   }
 }
 
+api.use(async (req, res, next) => {
+  if (req.headers?.authorization?.startsWith('Bearer ')) {
+    const token = req.headers.authorization.split('Bearer ')[1]
+    try {
+      const user = await getAuth(getApp()).verifyIdToken(token)
+      res.locals.user = user
+    } catch (err) {
+      res.locals.user = null
+      // eslint-disable-next-line no-console
+      console.log(err)
+    }
+  }
+  next()
+})
+
 //* /rest
 api
   .get('/', (req, res) => {
@@ -81,8 +101,21 @@ api
       }
     }) && next()
   })
-  .post('/profile', (req, res, next) => {
-    !respond(res, 200) && next()
+  .post('/profile', async (req, res, next) => {
+    const { displayName, firstName, lastName } = req.body as PostProfileBody
+    const user = res.locals.user as DecodedIdToken
+    if (!user) throw new StatusError(STATUS_CODES[401] as string, 401)
+    const profileRef = getFirestore().collection('users').doc(user.uid)
+    await profileRef.set({
+      displayName,
+      firstName,
+      lastName
+    })
+    !respond(res, 201, {
+      displayName,
+      firstName,
+      lastName
+    }) && next()
   })
   .put('/profile', (req, res, next) => {
     !respond(res, 200, {

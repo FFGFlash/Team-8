@@ -1,4 +1,9 @@
+import { getApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+
 export type ParamResolvable = string | number | boolean
+
+const auth = getAuth(getApp())
 
 export interface RequestParams {
   [key: string]: ParamResolvable | ParamResolvable[]
@@ -7,6 +12,7 @@ export interface RequestParams {
 export interface RequestOptions extends RequestInit {
   method?: RequestMethod
   body?: any
+  headers?: Record<string, string>
 }
 
 function debug(message: any, ...args: any[]) {
@@ -15,7 +21,7 @@ function debug(message: any, ...args: any[]) {
 }
 
 export default class Request<
-  GetParams extends RequestParams,
+  GetParams extends object,
   GetResponse extends ApiResponse,
   PostBody,
   PostResponse extends ApiResponse,
@@ -80,7 +86,12 @@ export default class Request<
   static typeFilter = ['undefined']
   static valueFilter = [Infinity, NaN, null]
 
-  static parseParams(params?: RequestParams) {
+  /**
+   * Creates a query string from an object
+   * @param params - The object used to make the query string
+   * @returns A query string
+   */
+  static parseParams(params?: object) {
     const retVal =
       params &&
       Object.entries(params)
@@ -97,7 +108,17 @@ export default class Request<
     return retVal && retVal.length > 0 ? `?${retVal}` : ''
   }
 
+  /**
+   * Used to send a request to a specific url
+   * @param url - The url to request information from
+   * @param options - The request options
+   * @returns The response body
+   */
   static async req<T>(url: string, options: RequestOptions = {}): Promise<T> {
+    //* Store the body for debugging purposes
+    const body = options.body
+
+    //* Constructs default request options
     options = {
       method: options.body ? 'POST' : 'GET',
       ...options,
@@ -106,17 +127,31 @@ export default class Request<
           ? options.body
           : options.body && JSON.stringify(options.body),
       headers: {
-        Accept: 'application/json',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
         ...options?.headers
       }
     }
 
-    debug(`REQ ${options.method}: ${url}`, options.body)
+    //* Tests if the request is to an external website, and if not then it adds the Authorization header if the user is authenticated
+    if (!/^(.+):\/\//.test(url)) {
+      const user = auth.currentUser
+      const token = user && (await user.getIdToken())
+      if (token) {
+        if (!options.headers) options.headers = {}
+        options.headers['Authorization'] = `Bearer ${token}`
+      }
+    }
 
+    debug(`REQ ${options.method}: ${url}`, body)
+
+    //* Store response and data externally for debugging purposes
     let res, data
     try {
+      //* Send request using fetch api
       res = await fetch(url, options)
 
+      //* if the response is 204 (NO CONTENT) or 405 (METHOD NOT ALLOWED), then return the Allow header as 'data.message'
       if (res.status === 204 || res.status === 405) {
         switch (res.headers.get('Content-Type')) {
           case 'application/json; charset=utf-8':
@@ -145,6 +180,7 @@ export default class Request<
             break
         }
       } else {
+        //* Process the response body based on the response content type
         switch (res.headers.get('Content-Type')) {
           case 'application/json; charset=utf-8':
             data = await res.json()
@@ -173,39 +209,87 @@ export default class Request<
     return data
   }
 
-  static get<P extends RequestParams, T>(
+  /**
+   * Sends a get request to a specific url
+   * @param url - The url to get data from
+   * @param params - The query parameters to send
+   * @param headers - The headers to send
+   * @returns The response body
+   */
+  static get<P extends object, T>(
     url: string,
     params?: P,
-    headers?: HeadersInit
+    headers?: Record<string, string>
   ) {
     url += this.parseParams(params)
     return this.req<T>(url, { headers, method: 'GET' })
   }
 
-  static post<B, T>(url: string, body?: B, headers?: HeadersInit) {
+  /**
+   * Sends a post request to a specific url
+   * @param url - The url to post data to
+   * @param body - The body to send
+   * @param headers - The headers to send
+   * @returns The response body
+   */
+  static post<B, T>(url: string, body?: B, headers?: Record<string, string>) {
     return this.req<T>(url, { body, headers, method: 'POST' })
   }
 
-  static put<B, T>(url: string, body?: B, headers?: HeadersInit) {
+  /**
+   * Sends a put request to a specific url
+   * @param url - The url to put data
+   * @param body - The body to send
+   * @param headers - The headers to send
+   * @returns The response body
+   */
+  static put<B, T>(url: string, body?: B, headers?: Record<string, string>) {
     return this.req<T>(url, { body, headers, method: 'PUT' })
   }
 
-  static patch<B, T>(url: string, body?: B, headers?: HeadersInit) {
+  /**
+   * Sends a patch request to a specific url
+   * @param url - The url to patch data
+   * @param body - The body to send
+   * @param headers - The headers to send
+   * @returns The response body
+   */
+  static patch<B, T>(url: string, body?: B, headers?: Record<string, string>) {
     return this.req<T>(url, { body, headers, method: 'PATCH' })
   }
 
-  static delete<B, T>(url: string, body?: B, headers?: HeadersInit) {
+  /**
+   * Sends a delete request to a specific url
+   * @param url - The url to delete data from
+   * @param body - The body to send
+   * @param headers - The headers to send
+   * @returns The response body
+   */
+  static delete<B, T>(url: string, body?: B, headers?: Record<string, string>) {
     return this.req<T>(url, { body, headers, method: 'DELETE' })
   }
 
-  static options<T>(url: string, headers?: HeadersInit) {
+  /**
+   * Sends an options request to a specific url
+   * @param url - The url to get options for
+   * @param headers - The headers to send
+   * @returns The response headers
+   */
+  static options<T>(url: string, headers?: Record<string, string>) {
     return this.req<T>(url, { headers, method: 'OPTIONS' })
   }
 
-  static head<P extends RequestParams, T>(
+  /**
+   * Sends a head request to a specific url
+   * @param url - The url to get headers for
+   * @param params - The query parameters to send
+   * @param headers - The headers to send
+   * @returns The response headers
+   */
+  static head<P extends object, T>(
     url: string,
     params?: P,
-    headers?: HeadersInit
+    headers?: Record<string, string>
   ) {
     url += this.parseParams(params)
     return this.req<T>(url, { headers, method: 'HEAD' })

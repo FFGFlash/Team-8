@@ -1,7 +1,7 @@
 declare interface ApiResponse {
   message: string
   status: number
-  data: any
+  data: object
 }
 
 declare interface ErrorResponse extends ApiResponse {

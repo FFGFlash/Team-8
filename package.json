@@ -12,9 +12,8 @@
     "serve": "out/public"
   },
   "scripts": {
-    "start": "node .",
+    "start": "cross-env NODE_ENV=development webpack",
     "build": "cross-env NODE_ENV=production webpack",
-    "start:dev": "cross-env NODE_ENV=development webpack",
     "test": "echo Need to add jest"
   },
   "repository": {

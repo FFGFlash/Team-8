@@ -31,16 +31,14 @@ export default function Player({ data }: PlayerProps) {
   const rapier = useRapier()
   const [, getControls] = useKeyboardControls()
 
-  const { forward, backward, left, right, jump, change_color } = getControls()
-
   //Change Color Mechanic
+  const { change_color } = getControls()
   useEffect(() => {
     if (!isOwner || !change_color) return
     const newColor = (color + 1) % colors.length
     setColor(newColor)
     socket.emit('set-color', newColor)
   }, [change_color])
-
   // useEffect(() => {
   //   if (!isOwner) return
   //   const interval = setInterval(() => {}, 1000 / 30)
@@ -50,15 +48,16 @@ export default function Player({ data }: PlayerProps) {
   useFrame(state => {
     if (!isOwner) return
 
+    const { forward, backward, left, right, jump } = getControls()
     state.camera.position.set(...ref.current.translation().toArray())
     frontVector.set(
-      0,
-      0,
+      0.2,
+      0.2,
       (backward as unknown as number) - (forward as unknown as number)
     )
     sideVector.set(
       (left as unknown as number) - (right as unknown as number),
-      0,
+      0.2,
       0
     )
     direction

@@ -69,7 +69,7 @@ fetch('/rest/profile', {
 | Endpoints               | Authentication | GET | POST | PUT | PATCH | DELETE |
 | ----------------------- | :------------: | :-: | :--: | :-: | :---: | :----: |
 | /rest/profile           |       ✅       | ✅  |  ✅  |     |  ✅   |   ✅   |
-| /rest/profile/:username |                | ✅  |      |     |       |        |
+| /rest/profile/:uid      |                | ✅  |      |     |       |        |
 | /rest/coffee            |                | ✅  |  ✅  | ✅  |  ✅   |   ✅   |
 
 # API and Error Response

@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'development') {
 
 import { createServer } from 'http'
 import { AddressInfo } from 'net'
-import app from './app'
+import expressApp from './app'
 import createSocket from './socket'
 import { initializeApp } from 'firebase-admin/app'
 import { credential } from 'firebase-admin'
@@ -17,13 +17,19 @@ initializeApp({
   credential: credential.applicationDefault()
 })
 
-const server = createServer(app)
+export default function app() {
+  const server = createServer(expressApp)
+  createSocket(server)
+  return server
+}
 
-createSocket(server)
+if (process.env.NODE_ENV === 'development') {
+  const server = app()
 
-server.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(
-    `Server listening on port ${(server.address() as AddressInfo).port}`
-  )
-})
+  server.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(
+      `Server listening on port ${(server.address() as AddressInfo).port}`
+    )
+  })
+}

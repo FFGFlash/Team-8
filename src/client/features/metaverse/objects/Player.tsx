@@ -51,7 +51,7 @@ export default function Player({ data }: PlayerProps) {
     const { forward, backward, left, right, jump } = getControls()
     state.camera.position.set(...ref.current.translation().toArray())
     frontVector.set(
-      0.2,
+      0,
       0.2,
       (backward as unknown as number) - (forward as unknown as number)
     )
